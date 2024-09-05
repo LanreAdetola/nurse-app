@@ -187,6 +187,8 @@
 </template>
 
 <script>
+import jsPDF from 'jspdf';
+
 export default {
   data() {
     return {
@@ -220,45 +222,79 @@ export default {
   },
   methods: {
     submitForm() {
-      let primaryHealthConcernMessage = this.form.primaryHealthConcern;
-      if (this.form.primaryHealthConcern === 'other') {
-        primaryHealthConcernMessage += `: ${this.form.otherPrimaryHealthConcern}`;
-      }
+      const doc = new jsPDF();
 
-      const message = `Personal Information:
-        - First Name: ${this.form.firstName}
-        - Last Name: ${this.form.lastName}
-        - Date of Birth: ${this.form.dob}
-        - Gender: ${this.form.gender}
-        - Phone Number: ${this.form.phoneNumber}
+      // Add title
+      doc.setFontSize(18);
+      doc.text('Form Details', 14, 20);
 
-        Home Address:
-        - Street: ${this.form.street}
-        - Junction: ${this.form.junction}
-        - Town: ${this.form.town}
+      // Add form data
+      doc.setFontSize(12);
+      let yOffset = 30; // Starting y-offset for the content
+      doc.text('Personal Information:', 14, yOffset);
+      yOffset += 10;
+      doc.text(`First Name: ${this.form.firstName}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Last Name: ${this.form.lastName}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Date of Birth: ${this.form.dob}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Gender: ${this.form.gender}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Phone Number: ${this.form.phoneNumber}`, 14, yOffset);
 
-        Health Information:
-        - Primary Health Concern: ${primaryHealthConcernMessage}
-        - Medical History: ${this.form.isMedicalHistoryNil ? 'No Medical History' : this.form.medicalHistory}
-        - Allergies: ${this.form.isAllergiesNil ? 'No Known Allergies' : this.form.allergies}
-        - Medications: ${this.form.isMedicationsNil ? 'No Current Medications' : this.form.medications}
-        - Recent Surgeries/Procedures: ${this.form.isRecentSurgeriesNil ? 'No Recent Surgeries/Procedures' : this.form.recentSurgeries}
-        - Recent Symptoms: ${this.form.recentSymptoms}
+      yOffset += 20;
+      doc.text('Home Address:', 14, yOffset);
+      yOffset += 10;
+      doc.text(`Street: ${this.form.street}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Junction: ${this.form.junction}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Town: ${this.form.town}`, 14, yOffset);
 
-        Appointment Details:
-        - Preferred Appointment Date and Time: ${this.form.appointmentDate}
-        - Special Requirements: ${this.form.specialRequirements}
+      yOffset += 20;
+      doc.text('Health Information:', 14, yOffset);
+      yOffset += 10;
+      doc.text(`Primary Health Concern: ${this.form.primaryHealthConcern}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Medical History: ${this.form.medicalHistory}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Allergies: ${this.form.allergies}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Medications: ${this.form.medications}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Recent Surgeries/Procedures: ${this.form.recentSurgeries}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Recent Symptoms: ${this.form.recentSymptoms}`, 14, yOffset);
 
-        Consent and Agreements:
-        - Consent to Treatment: ${this.form.consentToTreatment}
-        - Privacy Policy Agreement: ${this.form.privacyPolicyAgreement}
-        - Terms of Service Agreement: ${this.form.termsOfServiceAgreement}
-      `;
+      yOffset += 20;
+      doc.text('Appointment Details:', 14, yOffset);
+      yOffset += 10;
+      doc.text(`Preferred Appointment Date and Time: ${this.form.appointmentDate}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Special Requirements: ${this.form.specialRequirements}`, 14, yOffset);
 
-      const encodedMessage = encodeURIComponent(message.trim());
-      const phoneNumber = "23772245246"; // Update with the recipient's number
-      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      yOffset += 20;
+      doc.text('Consent and Agreements:', 14, yOffset);
+      yOffset += 10;
+      doc.text(`Consent to Treatment: ${this.form.consentToTreatment}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Privacy Policy Agreement: ${this.form.privacyPolicyAgreement}`, 14, yOffset);
+      yOffset += 10;
+      doc.text(`Terms of Service Agreement: ${this.form.termsOfServiceAgreement}`, 14, yOffset);
 
+      // Save the PDF
+      const pdfBlob = doc.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      // Open the PDF in a new tab for user download
+      window.open(pdfUrl, "_blank");
+      
+      // Prepare WhatsApp message
+      const phoneNumber = "23772245246";
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent("Please find the attached form. Unfortunately, direct file sending is not supported. Please download and send manually.")}`;
+
+      // Open WhatsApp in a new tab
       window.open(whatsappURL, "_blank");
     },
   },
